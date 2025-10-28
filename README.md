@@ -9,8 +9,8 @@ A ideia é compreender desde a **importância dos dados limpos** até **quando (
 
 | Etapa | Descrição | Status |
 |:------|:-----------|:-------|
-| **1️⃣ Contexto: Importância da manipulação de dados** | Por que a limpeza e organização de dados é essencial para análises confiáveis. | ☐ |
-| **2️⃣ Tipos de dados e estruturas** | Revisão de vetores, matrizes, DataFrames e outros tipos fundamentais. | ☐ |
+| **1️⃣ Contexto: Importância da manipulação de dados** | Por que a limpeza e organização de dados é essencial para análises confiáveis. | ✅ |
+| **2️⃣ Tipos de dados e estruturas** | Revisão de vetores, matrizes, DataFrames e outros tipos fundamentais. | ✅ |
 | **3️⃣ Inspeção inicial e exploração** | Visualizar, descrever e compreender a estrutura dos dados. | ☐ |
 | **4️⃣ Limpeza de dados** | Tratamento de valores ausentes, duplicados e inconsistências. | ☐ |
 | **5️⃣ Transformações básicas** | Aplicação de `select`, `filter`, `mutate`, entre outras operações. | ☐ |
