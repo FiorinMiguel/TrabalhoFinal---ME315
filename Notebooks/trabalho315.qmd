@@ -288,7 +288,9 @@ print(dataset_eletric_cars.tail())
 Analisar a estrutura do dataset é essencial para compreender o tipo e o papel de cada variável, facilitando a escolha das operações adequadas. Essa etapa também ajuda a identificar inconsistências ou tipos incorretos de dados que podem afetar as análises posteriores.
 </p>
 ```
+
 <h5><code>describe(...)</code></h5>
+
 ```{julia}
 #| echo: true
 #| eval: false
@@ -299,34 +301,38 @@ describe(dataset_eletric_cars)
 #| echo: false
 describe(dataset_eletric_cars)
 ```
+
 ```{=html}
 <p style="font-size:0.5em; color:#555;">
 A função <code>describe(...)</code> mostra um resumo das colunas, com estatísticas para numéricas e frequências para categóricas, ajudando a identificar missing values e padrões.
 </p>
 ```
 
-------------
-
+------------------------------------------------------------------------
 
 <h5><code>names(...)</code></h5>
+
 ```{julia}
 #| echo: true
 #| eval: false
 names(dataset_eletric_cars)
 ```
+
 ```{julia}
 #| echo: false
 names(dataset_eletric_cars)
 ```
+
 ```{=html}
 <p style="font-size:0.5em; color:#555;">
 A função <code>names(...)</code> retorna os nomes de todas as colunas do dataset, permitindo entender rapidamente a estrutura dos dados.
 </p>
 ```
 
--------------
+------------------------------------------------------------------------
 
 <h5><code>eltype.(eachcol(...))</code></h5>
+
 ```{julia}
 #| echo: true
 #| eval: false
@@ -337,11 +343,14 @@ eltype.(eachcol(dataset_eletric_cars))
 #| echo: false
 eltype.(eachcol(dataset_eletric_cars))
 ```
+
 <p style="font-size:0.5em; color:#555;">
+
 A função <code>eltype.(eachcol(...))</code> mostra o tipo de cada coluna, indicando se são numéricas, categóricas ou outro tipo de dado.
+
 </p>
 
--------
+------------------------------------------------------------------------
 
 ##### R
 
@@ -354,6 +363,7 @@ names(dataset_eletric_cars)
 ```
 
 ##### Python - Pandas
+
 ```{python}
 #| echo: true
 #| eval: false
@@ -364,5 +374,126 @@ print(dataset_eletric_cars.dtypes) # tipos de colunas
 print(dataset_eletric_cars.describe()) # estatísticas descritivas
 ```
 
+------------------------------------------------------------------------
 
+#### **Limpeza de dados**
 
+```{=html}
+<p style="font-size:0.6em; color:#555;">
+A limpeza de dados assegura qualidade e confiabilidade nas análises. Sem ela, os resultados podem ser distorcidos e levar a conclusões incorretas.
+</p>
+```
+
+##### **Identificação de valores ausentes em um DataFrame**
+
+###### Vetorização
+
+```{julia}
+#| echo: true
+#| eval: false
+ismissing.(dataset_eletric_cars.model)  # retorna true/false para cada linha
+```
+
+###### Contagem de valores ausentes
+
+```{julia}
+#| echo: true
+#| eval: false
+count(ismissing, dataset_eletric_cars.model) # conta missings de uma coluna
+map(col -> count(ismissing, col), eachcol(dataset_eletric_cars))
+```
+
+------------------------------------------------------------------------
+
+Transformando em um DataFrame:
+
+```{julia}
+#| echo: true
+#| eval: false
+missing_count = DataFrame(
+    Coluna = names(dataset_eletric_cars),
+    Missings = map(col -> count(ismissing, col), eachcol(dataset_eletric_cars))
+)
+```
+
+```{julia}
+#| echo: false
+missing_count = DataFrame(
+    Coluna = names(dataset_eletric_cars),
+    Missings = map(col -> count(ismissing, col), eachcol(dataset_eletric_cars))
+)
+```
+
+------------------------------------------------------------------------
+
+#### Detecção e tratamento de outliers - Método IQR (regra do boxplot)
+
+```{=html}
+<p style="font-size:0.6em; color:#555;">
+Analisando a coluna number_of_cells (células individuais de lítio que compõem a bateria do carro elétrico).
+</p>
+```
+
+```{julia}
+#| echo: true
+#| eval: false
+using Statistics
+
+# Calcular limites IQR
+cells_data = skipmissing(dataset_eletric_cars.number_of_cells);
+Q1, Q3 = quantile(cells_data, [0.25, 0.75]);
+IQR_val = Q3 - Q1;
+
+lower = Q1 - 1.5 * IQR_val;
+upper = Q3 + 1.5 * IQR_val;
+
+# Filtrar outliers
+outlier_rows = filter(row -> 
+    !ismissing(row.number_of_cells) && 
+    (row.number_of_cells < lower || row.number_of_cells > upper),
+    dataset_eletric_cars
+);
+
+println("Q1: " , Q1)
+println("Q3: " , Q3)
+println("IQR: ", IQR_val)
+
+#tabela final
+outlier_rows[:, [:model, :number_of_cells]]
+```
+
+------------------------------------------------------------------------
+
+```{julia}
+#| echo: false
+using Statistics
+
+# Calcular limites IQR
+cells_data = skipmissing(dataset_eletric_cars.number_of_cells);
+Q1, Q3 = quantile(cells_data, [0.25, 0.75]);
+IQR_val = Q3 - Q1;
+
+lower = Q1 - 1.5 * IQR_val;
+upper = Q3 + 1.5 * IQR_val;
+
+# Filtrar outliers
+outlier_rows = filter(row -> 
+    !ismissing(row.number_of_cells) && 
+    (row.number_of_cells < lower || row.number_of_cells > upper),
+    dataset_eletric_cars
+);
+println("Q1: " , Q1)
+println("Q3: " , Q3)
+println("IQR: ", IQR_val)
+
+#tabela final
+outlier_rows[:, [:model, :number_of_cells]]
+```
+
+```{=html}
+<p style="font-size:0.6em; color:#555;">
+Os outliers identificados representam os carros elétricos premium do mercado, com baterias excepcionalmente grandes, mostrando que a análise foi bem-sucedida em encontrar os valores realmente diferentes no conjunto de dados.
+</p>
+```
+
+------------------------------------------------------------------------
